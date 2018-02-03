@@ -38,6 +38,8 @@ usernames = ['admin', 'root']
 passwords = ['password', 'letmein']
 
 shell_strike = ShellStrike.new(hosts, usernames, passwords)
+
+shell_strike.perform_attack
 ```
 
 ## TODO

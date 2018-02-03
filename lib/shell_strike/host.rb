@@ -47,4 +47,14 @@ class ShellStrike::Host
 
     ShellStrike::Result.new(valid, message)
   end
+
+  # Returns the current host's address in URI form.
+  # @return [String] the current host's address in URI form. (host:port)
+  # @example 
+  #   192.168.1.200:22
+  #   172.20.16.20:200
+  #   example.com:22
+  def to_uri
+    "#{self.host}:#{self.port}"
+  end
 end

@@ -24,4 +24,21 @@ class ShellStrike
     @global_actions = global_actions
   end
 
+  def perform_attack
+    combinations = @usernames.product(@passwords)
+
+    @hosts.each do |host|
+      # TODO: Handle unreachable hosts, failures, etc.
+
+      combinations.each do |username, password|
+        if host.test_credentials(username, password).valid?
+          identified_credentials[host.to_uri] = [username, password]
+        end
+      end
+    end
+  end
+
+  def identified_credentials
+    @identified_credentials ||= {}
+  end
 end

@@ -112,4 +112,12 @@ describe ShellStrike::Host do
       it { is_expected.to return_a_result_object.with_a_success_value_of(false).and_a_message_matching(/unexpected error occurred/i) }
     end
   end
+
+  describe '#to_uri' do
+    let(:host) { ShellStrike::Host.new('172.20.16.20', 200) }
+
+    subject { host.to_uri }
+
+    it { is_expected.to eq '172.20.16.20:200' }
+  end
 end
