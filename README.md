@@ -25,32 +25,18 @@ Or install it yourself as:
     $ gem install shell_strike
 
 ## Usage
+Create a new instance of ShellStrike, passing in an array of ShellStrike::Host objects, an array of usernames and an array of passwords. i.e.
+
 ```
-shell_strike = ShellStrike.new(hosts, usernames, passwords, global_actions = [])
-shell_strike.run
-
 hosts = [
-  {
-    address: '',
-    port: '',
-    actions: [
-      'echo "username:newpassword" | chpasswd'
-    ]
-  }
+  ShellStrike::Host.new('192.168.1.100'),
+  ShellStrike::Host.new('192.168.1.101')
 ]
 
-usernames = [
-  'admin',
-  'root',
-  'administrator',
-  'superuser'
-]
+usernames = ['admin', 'root']
+passwords = ['password', 'letmein']
 
-passwords = [
-  'password',
-  'drowssap',
-  'letmein'
-]
+shell_strike = ShellStrike.new(hosts, usernames, passwords)
 ```
 
 ## TODO

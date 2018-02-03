@@ -2,15 +2,7 @@ require 'spec_helper'
 
 RSpec.describe ShellStrike do
   describe '#initialize' do
-    let(:valid_hosts) do
-      [
-        {
-          address: '192.168.1.100',
-          port: 22,
-          actions: []
-        }
-      ]
-    end
+    let(:valid_hosts) { [ShellStrike::Host.new('192.168.1.100')] }
     let(:valid_usernames) { ['admin', 'root', 'administrator'] }
     let(:valid_passwords) { ['password', 'letmein'] }
     let(:valid_global_actions) { ['whoami'] }

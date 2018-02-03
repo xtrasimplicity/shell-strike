@@ -102,3 +102,6 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 =end
 end
+
+# Require support files
+Dir.glob(File.expand_path(File.join(File.dirname(__FILE__), 'support', '**', '*.rb'))).each { |rb| require rb }
