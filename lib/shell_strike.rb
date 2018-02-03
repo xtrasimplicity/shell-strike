@@ -31,8 +31,12 @@ class ShellStrike
       # TODO: Handle unreachable hosts, failures, etc.
 
       combinations.each do |username, password|
-        if host.test_credentials(username, password).valid?
+        authentication = host.test_credentials(username, password)
+
+        if authentication.valid?
           identified_credentials[host.to_uri] = [username, password]
+        else
+          unreachable_hosts[host.to_uri] = authentication.message
         end
       end
     end
@@ -40,5 +44,9 @@ class ShellStrike
 
   def identified_credentials
     @identified_credentials ||= {}
+  end
+
+  def unreachable_hosts
+    @unreachable_hosts ||= {}
   end
 end
