@@ -1,6 +1,6 @@
-# ShellStrike
-[![Build Status](https://travis-ci.org/xtrasimplicity/shell-strike.svg?branch=develop)](https://travis-ci.org/xtrasimplicity/shell-strike)
-[![Coverage Status](https://coveralls.io/repos/github/xtrasimplicity/shell-strike/badge.svg?branch=develop)](https://coveralls.io/github/xtrasimplicity/shell-strike?branch=master)
+# ShellStrike (alpha)
+[![Build Status](https://travis-ci.org/xtrasimplicity/shell-strike.svg?branch=master)](https://travis-ci.org/xtrasimplicity/shell-strike)
+[![Coverage Status](https://coveralls.io/repos/github/xtrasimplicity/shell-strike/badge.svg?branch=master)](https://coveralls.io/github/xtrasimplicity/shell-strike?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/f66cd28d67eb40caf879/maintainability)](https://codeclimate.com/github/xtrasimplicity/shell-strike/maintainability)
 
 A simple ruby gem to automatically identify valid SSH credentials for a server using custom username and password dictionaries, and (optionally) perform actions against hosts using the identified credentials.
