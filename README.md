@@ -1,5 +1,6 @@
 # ShellStrike
 [![Build Status](https://travis-ci.org/xtrasimplicity/shell-strike.svg?branch=master)](https://travis-ci.org/xtrasimplicity/shell-strike)
+[![Coverage Status](https://coveralls.io/repos/github/xtrasimplicity/shell-strike/badge.svg?branch=master)](https://coveralls.io/github/xtrasimplicity/shell-strike?branch=master)
 
 A simple ruby gem to automatically identify valid SSH credentials for a server using custom username and password dictionaries, and (optionally) perform actions against hosts using the identified credentials.
 
@@ -24,7 +25,35 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+shell_strike = ShellStrike.new(hosts, usernames, passwords, global_actions = [])
+shell_strike.run
+
+hosts = [
+  {
+    address: '',
+    port: '',
+    actions: [
+      'echo "username:newpassword" | chpasswd'
+    ]
+  }
+]
+
+usernames = [
+  'admin',
+  'root',
+  'administrator',
+  'superuser'
+]
+
+passwords = [
+  'password',
+  'drowssap',
+  'letmein'
+]
+
+## TODO
+- Add support for user-defineable SSH arguments such as KexAlgorithms and key-based auth.
+- Add support for interactive SSH sessions.
 
 ## Development
 
