@@ -3,6 +3,9 @@
 
 A simple ruby gem to automatically identify valid SSH credentials for a server using custom username and password dictionaries, and (optionally) perform actions against hosts using the identified credentials.
 
+
+This gem is intended to be used for educational purposes, and was written to assist with quickly identifying credential combinations for poorly documented internal servers. This gem is intended to be used against servers that you are authorised to 'attack' and the developer takes no responsibility for any issues which may arise due to misuse of this gem.
+
 ## Installation
 
 Add this line to your application's Gemfile:
