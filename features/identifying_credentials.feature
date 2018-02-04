@@ -32,3 +32,21 @@ Feature: Credential Identification
     """
     Then ShellStrike.identified_credentials should be an empty hash
     And ShellStrike.unreachable_hosts should include the host with a message containing 'No route to host'
+
+  Scenario: Identifying credentials when a host is online, but the valid credentials aren't present in the username and password dictionaries supplied
+    Given There is an SSH server running on '172.20.16.20':22
+    And the server has a valid username of 'admin' with a password of 'letmein'
+    When I run the following code
+    """
+      usernames = ['root', 'administrator']
+      passwords = ['letmein', 'password']
+      hosts = [
+        ShellStrike::Host.new('172.20.16.20')
+      ]
+
+      @instance = ShellStrike.new(hosts, usernames, passwords)
+      @instance.perform_attack
+    """
+    Then ShellStrike.identified_credentials should be an empty hash
+    And ShellStrike.failed_hosts should include the host
+    And ShellStrike.unreachable_hosts should be an empty hash

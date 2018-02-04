@@ -48,3 +48,14 @@ Then("ShellStrike.unreachable_hosts should include the host with a message conta
 
   expect(unreachable_hosts).to include(@actual_server.to_uri => Regexp.new(message))
 end
+
+Then("ShellStrike.unreachable_hosts should be an empty hash") do
+  expect(@instance.unreachable_hosts).to eq({})
+end
+
+Then("ShellStrike.failed_hosts should include the host") do
+  failed_hosts_as_array_of_hashes = @instance.failed_hosts.collect { |host| host_as_hash(host) }
+  subject_host_as_hash = host_as_hash(@actual_server)
+  
+  expect(failed_hosts_as_array_of_hashes).to include(subject_host_as_hash)
+end

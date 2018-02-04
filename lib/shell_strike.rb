@@ -28,17 +28,23 @@ class ShellStrike
     combinations = @usernames.product(@passwords)
 
     @hosts.each do |host|
-      # TODO: Handle unreachable hosts, failures, etc.
-
+      host_failure_count = 0
+      
       combinations.each do |username, password|
         authentication = host.test_credentials(username, password)
 
         if authentication.valid?
           identified_credentials[host.to_uri] = [username, password]
+        elsif authentication.exception.nil?
+          host_failure_count += 1
         else
           unreachable_hosts[host.to_uri] = authentication.message
+          break
         end
       end
+
+      failed_hosts << host if host_failure_count == combinations.length
+
     end
   end
 
@@ -46,7 +52,17 @@ class ShellStrike
     @identified_credentials ||= {}
   end
 
+  # A hash of hosts which were unreachable.
+  # @return A hash of Host objects and their error messages.
+  # @example
+  #     #<ShellStrike::Host:*> => 'Unable to connect to *. No route to host'
   def unreachable_hosts
     @unreachable_hosts ||= {}
+  end
+
+  # An array of hosts for which valid credentials were not able to be identified.
+  # @return An array of Host objects
+  def failed_hosts
+    @failed_hosts ||= []
   end
 end
