@@ -36,8 +36,4 @@ describe ShellStrike::Result do
       it { is_expected.to be true }
     end
   end
-
-  describe '#exception' do
-    context 'when '
-  end
 end
