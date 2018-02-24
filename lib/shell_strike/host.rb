@@ -30,7 +30,7 @@ class ShellStrike::Host
   def test_credentials(username, password)
     valid = false
     message = ''
-    exception = nil
+    error_type = nil
 
     begin
       Net::SSH.start(@host, username, password: password, port: @port, non_interactive: true, timeout: @connection_timeout)
@@ -38,18 +38,19 @@ class ShellStrike::Host
       valid = true
     rescue Net::SSH::AuthenticationFailed
       message = 'Invalid Credentials'
+      error_type = :authentication_failure
     rescue Net::SSH::ConnectionTimeout => e
       message = "Connection timed out whilst attempting to connect to #{@host} on port #{@port}"
-      exception = e
+      error_type = :connection_timeout
     rescue Net::SSH::Exception => e
-      message = "An unexpected error occurred whilst connecting to #{@host} on port #{@port} with username #{username} and password #{@password}: #{e.message}"
-      exception = e
+      message = "An unexpected error occurred whilst connecting to #{@host} on port #{@port} with username #{username} and password #{password}: #{e.message}"
+      error_type = :unexpected_error
     rescue Errno::EHOSTUNREACH => e
       message = "Unable to connect to #{@host}: #{e.message}"
-      exception = e
+      error_type = :host_unreachable
     end
 
-    ShellStrike::Result.new(valid, message, exception)
+    ShellStrike::Result.new(valid, message, error_type)
   end
 
   # Returns the current host's address in URI form.

@@ -1,26 +1,6 @@
 require 'spec_helper'
 
 describe ShellStrike::Result do
-  describe '#initialize' do
-    let(:exception) { ArgumentError.new('This is an example exception') }
-
-    context 'when an exception is not supplied' do
-      subject { ShellStrike::Result.new(true, '') }
-
-      it 'sets the `exception` attribute to nil' do
-        expect(subject.exception).to eq(nil)
-      end
-    end
-
-    context 'when an exception is supplied' do
-      subject { ShellStrike::Result.new(true, '', exception) }
-
-      it 'sets the `exception` attribute' do
-        expect(subject.exception).to eq(exception)
-      end
-    end
-  end
-
   describe '#success?' do
     context 'when initialised with `false`' do
       let(:instance) { ShellStrike::Result.new(false, '') }
@@ -34,6 +14,34 @@ describe ShellStrike::Result do
       subject { instance.success? }
 
       it { is_expected.to be true }
+    end
+  end
+
+  describe '#message' do
+    let(:message) { 'This is a test message!' }
+    let(:instance) { ShellStrike::Result.new(true, message) }
+    subject { instance.message }
+
+    it { is_expected.to eq message }
+  end
+
+  describe '#error_type' do
+    context 'when #success? is true' do
+      let(:instance) { ShellStrike::Result.new(true, '') }
+      subject { instance.error_type }
+
+      it { is_expected.to be nil }
+    end
+
+    supported_error_types = [:authentication_failure, :connection_timeout, :host_unreachable]
+
+    supported_error_types.each do |error_type|
+      context "when initialised with `:#{error_type}`" do
+        let(:instance) { ShellStrike::Result.new(false, 'Failure message', error_type) }
+        subject { instance.error_type }
+
+        it { is_expected.to eq error_type }
+      end
     end
   end
 end

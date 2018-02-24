@@ -12,7 +12,7 @@ Feature: Credential Identification
       ]
 
       @instance = ShellStrike.new(hosts, usernames, passwords)
-      @instance.perform_attack
+      @instance.identify_credentials!
     """
     Then ShellStrike.identified_credentials should include the correct credentials
 
@@ -28,10 +28,44 @@ Feature: Credential Identification
       ]
 
       @instance = ShellStrike.new(hosts, usernames, passwords)
-      @instance.perform_attack
+      @instance.identify_credentials!
     """
     Then ShellStrike.identified_credentials should be an empty hash
     And ShellStrike.unreachable_hosts should include the host with a message containing 'No route to host'
+
+  Scenario: Identifying credentials when a connection to the host times out
+    Given Connections to an SSH server running on '192.168.1.100':22 timeout
+    When I run the following code
+    """
+    usernames = ['root', 'admin']
+      passwords = ['letmein', 'password']
+      hosts = [
+        ShellStrike::Host.new('192.168.1.101'),
+        ShellStrike::Host.new('192.168.1.100')
+      ]
+
+      @instance = ShellStrike.new(hosts, usernames, passwords)
+      @instance.identify_credentials!
+    """
+    Then ShellStrike.identified_credentials should be an empty hash
+    And ShellStrike.unreachable_hosts should include the host with a message containing 'Connection timed out'
+
+  Scenario: Identifying credentials when a connection to the host experiences an unexpected, unknown error
+    Given Connections to an SSH server running on '192.168.1.100':22 fail with an unexpected error
+    When I run the following code
+    """
+    usernames = ['root', 'admin']
+      passwords = ['letmein', 'password']
+      hosts = [
+        ShellStrike::Host.new('192.168.1.101'),
+        ShellStrike::Host.new('192.168.1.100')
+      ]
+
+      @instance = ShellStrike.new(hosts, usernames, passwords)
+      @instance.identify_credentials!
+    """
+    Then ShellStrike.identified_credentials should be an empty hash
+    And ShellStrike.unreachable_hosts should include the host with a message containing 'unexpected error occurred'
 
   Scenario: Identifying credentials when a host is online, but the valid credentials aren't present in the username and password dictionaries supplied
     Given There is an SSH server running on '172.20.16.20':22
@@ -45,7 +79,7 @@ Feature: Credential Identification
       ]
 
       @instance = ShellStrike.new(hosts, usernames, passwords)
-      @instance.perform_attack
+      @instance.identify_credentials!
     """
     Then ShellStrike.identified_credentials should be an empty hash
     And ShellStrike.failed_hosts should include the host

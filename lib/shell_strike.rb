@@ -24,30 +24,66 @@ class ShellStrike
     @global_actions = global_actions
   end
 
-  def perform_attack
-    combinations = @usernames.product(@passwords)
-
+  # Identifies valid credentials for each host and populates the `identified_credentials`, `failed_hosts` and `unreachable_hosts` arrays. 
+  def identify_credentials!
     @hosts.each do |host|
-      host_failure_count = 0
-      
-      combinations.each do |username, password|
-        authentication = host.test_credentials(username, password)
+      credential_failure_count = 0
 
-        if authentication.valid?
-          identified_credentials[host.to_uri] = [username, password]
-        elsif authentication.exception.nil?
-          host_failure_count += 1
-        else
-          unreachable_hosts[host.to_uri] = authentication.message
+      username_password_combinations.each do |username, password|
+        auth_result = host.test_credentials(username, password)
+
+        if auth_result.valid?
+          store_valid_credentials(host, username, password)
           break
+        else
+          case auth_result.error_type
+            when :authentication_failure
+              credential_failure_count += 1
+            when :host_unreachable, :connection_timeout, :unexpected_error
+              store_unreachable_host(host, auth_result.message)
+              break
+          end
         end
       end
 
-      failed_hosts << host if host_failure_count == combinations.length
-
+      store_failed_host(host) if credential_failure_count == username_password_combinations.length
     end
   end
 
+
+  # Stores valid credentials into the #identified_credentials array
+  # @param host [Host] The host object for which to store the valid credentials
+  # @param username [String] The valid username for this host
+  # @param password [String] The valid password for this host
+  def store_valid_credentials(host, username, password)
+    identified_credentials[host.to_uri] = [username, password]
+  end
+
+  # Stores the unreachable host into the unreachable hosts array
+  # @param host [Host] The unreachable host.
+  # @param message [String] A message with further information about the unreachability of the host.
+  def store_unreachable_host(host, message)
+    unreachable_hosts[host.to_uri] = message
+  end
+
+  # Stores the host (for which no valid credentials could be identified) into the failed hosts array.
+  # @param host [Host] the host for which no valid credentials could be identified.
+  def store_failed_host(host)
+    failed_hosts << host
+  end
+
+  # Creates an array of username and password combinations, using the previously supplied usernames and passwords.
+  # @return An array of (yet to be validated!) username and password combinations
+  # @example
+  #   [ ['root', 'letmein'], ['admin', 'password'] ]
+  def username_password_combinations
+    @usernames.product(@passwords)
+  end
+
+  # A hash of hosts and their valid credentials.
+  # @return A hash of Host URIs and their valid credentials.
+  # @example
+  #   { '192.168.1.100:22' => ['admin', 'password'] }
   def identified_credentials
     @identified_credentials ||= {}
   end

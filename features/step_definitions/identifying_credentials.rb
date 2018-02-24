@@ -18,6 +18,27 @@ Given("There isn't an SSH server running on {string}:{int}") do |hostname, port|
   allow(Net::SSH).to receive(:start).with(hostname, anything, hash_including(port: port)).and_raise(Errno::EHOSTUNREACH)
 end
 
+
+Given("Connections to an SSH server running on {string}:{int} timeout") do |hostname, port|
+  @actual_server = ShellStrike::Host.new(hostname, port)
+
+  # Raise an authentication failed exception for ALL authentication attempts
+  allow(Net::SSH).to receive(:start).and_raise Net::SSH::AuthenticationFailed
+
+  # Raise Connection Timed Out error for connection attempts to this host and port combination
+  allow(Net::SSH).to receive(:start).with(hostname, anything, hash_including(port: port)).and_raise(Net::SSH::ConnectionTimeout)
+end
+
+Given("Connections to an SSH server running on {string}:{int} fail with an unexpected error") do |hostname, port|
+  @actual_server = ShellStrike::Host.new(hostname, port)
+
+  # Raise an authentication failed exception for ALL authentication attempts
+  allow(Net::SSH).to receive(:start).and_raise Net::SSH::AuthenticationFailed
+
+  # Raise an Unknown Exception for connection attempts to this host and port combination
+  allow(Net::SSH).to receive(:start).with(hostname, anything, hash_including(port: port)).and_raise(Net::SSH::Exception)
+end
+
 Given("the server has a valid username of {string} with a password of {string}") do |username, password|
   # Raise an authentication failed exception for ALL authentication attempts
   allow(Net::SSH).to receive(:start).and_raise Net::SSH::AuthenticationFailed
