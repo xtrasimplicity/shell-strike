@@ -39,7 +39,7 @@ passwords = ['password', 'letmein']
 
 shell_strike = ShellStrike.new(hosts, usernames, passwords)
 
-shell_strike.identify_credentials
+shell_strike.identify_credentials!
 ```
 
 ## TODO
