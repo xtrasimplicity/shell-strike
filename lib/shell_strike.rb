@@ -34,7 +34,7 @@ class ShellStrike
 
         if auth_result.valid?
           store_valid_credentials(host, username, password)
-          break
+          next
         else
           case auth_result.error_type
             when :authentication_failure
@@ -56,7 +56,8 @@ class ShellStrike
   # @param username [String] The valid username for this host
   # @param password [String] The valid password for this host
   def store_valid_credentials(host, username, password)
-    identified_credentials[host.to_uri] = [username, password]
+    identified_credentials[host.to_uri] = [] unless identified_credentials.has_key? host.to_uri
+    identified_credentials[host.to_uri] << [username, password]
   end
 
   # Stores the unreachable host into the unreachable hosts array
