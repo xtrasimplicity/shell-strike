@@ -13,16 +13,6 @@ class ShellStrike::Host
     @actions = actions
   end
 
-  # Whether the host is able to be reached on the specified port.
-  def reachable?
-    begin
-      Socket.tcp(@host, @port, connect_timeout: @connection_timeout) { |s| s.close }
-      return true
-    rescue
-      return false  
-    end
-  end
-
   # Tests the specified username and password.
   # @param username [String] the username to test.
   # @param password [String] the password to test.

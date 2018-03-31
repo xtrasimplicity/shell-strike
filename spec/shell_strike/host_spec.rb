@@ -49,29 +49,6 @@ describe ShellStrike::Host do
     end
   end
 
-  describe '#reachable?' do
-    let(:host) { ShellStrike::Host.new('192.168.1.1') }
-    subject { host.reachable? }
-
-    context 'when the host is unreachable' do
-      before { allow(Socket).to receive(:tcp).and_raise(Errno::EHOSTUNREACH) }
-      
-      it { is_expected.to eq(false) }
-    end
-
-    context 'when the connection times out' do
-      before { allow(Socket).to receive(:tcp).and_raise(Errno::ETIMEDOUT) }
-    
-      it { is_expected.to eq(false) }
-    end
-
-    context 'when the connection is successful' do
-      before { allow(Socket).to receive(:tcp).and_return(true) }
-    
-      it { is_expected.to eq(true) }
-    end
-  end
-
   describe '#test_credentials' do
     let(:host) { ShellStrike::Host.new('192.168.1.1') }
     let(:username) { 'admin' }
