@@ -1,5 +1,5 @@
 Given("There is an SSH server running on {string}:{int}") do |hostname, port|
-  mock_host_as_online(hostname, port)
+ mock_host_as_online(hostname, port)
 end
 
 Given("There isn't an SSH server running on {string}:{int}") do |hostname, port|
@@ -20,8 +20,6 @@ Given("the server at {string}:{int} has the following valid credentials:") do |h
 
   stub_valid_ssh_credentials(host, port, @valid_credentials)
 end
-end
-
 When("I run the following code") do |code|
   eval code
 end
