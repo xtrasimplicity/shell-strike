@@ -23,7 +23,7 @@ module SSHHelper
     allow(Net::SSH).to receive(:start).with(host, anything, hash_including(port: port)).and_raise Net::SSH::Exception
   end
 
-  def stub_valid_ssh_credentials(host, port,valid_credentials)
+  def stub_valid_ssh_credentials(host, port, valid_credentials)
     force_ssh_authentication_failure_for_all_credentials
 
     valid_credentials.each do |username, password|
