@@ -1,3 +1,5 @@
+require File.expand_path('../../lib/tests/ssh_helper', __FILE__)
+
 require 'shell_strike'
 require 'coveralls'
 Coveralls.wear_merged!
