@@ -9,7 +9,6 @@ Feature: Identifying credentials for a single host
       usernames = ['root', 'admin']
       passwords = ['letmein', 'password']
       hosts = [
-        ShellStrike::Host.new('192.168.1.101'),
         ShellStrike::Host.new('192.168.1.100')
       ]
 
@@ -27,7 +26,6 @@ Feature: Identifying credentials for a single host
     usernames = ['root', 'admin']
       passwords = ['letmein', 'password']
       hosts = [
-        ShellStrike::Host.new('192.168.1.101'),
         ShellStrike::Host.new('192.168.1.100')
       ]
 
@@ -44,7 +42,6 @@ Feature: Identifying credentials for a single host
     usernames = ['root', 'admin']
       passwords = ['letmein', 'password']
       hosts = [
-        ShellStrike::Host.new('192.168.1.101'),
         ShellStrike::Host.new('192.168.1.100')
       ]
 
@@ -61,7 +58,6 @@ Feature: Identifying credentials for a single host
     usernames = ['root', 'admin']
       passwords = ['letmein', 'password']
       hosts = [
-        ShellStrike::Host.new('192.168.1.101'),
         ShellStrike::Host.new('192.168.1.100')
       ]
 
