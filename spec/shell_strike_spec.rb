@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe ShellStrike do
   include SSHHelper
-  
+
   describe '#initialize' do
     let(:valid_hosts) { [ShellStrike::Host.new('192.168.1.100')] }
     let(:valid_usernames) { ['admin', 'root', 'administrator'] }
@@ -79,42 +79,6 @@ RSpec.describe ShellStrike do
 
       it 'should default to []' do
         expect(subject.global_actions).to eq([])
-      end
-    end
-  end
-
-  describe '.execute_actions' do
-    context 'when hosts with actions have been defined' do
-      let(:username) { 'admin' }
-      let(:password) { 'password' }
-      let(:hosts) do
-        [
-          ShellStrike::Host.new('192.168.1.100', 22, 30, ['whoami']),
-          ShellStrike::Host.new('192.168.1.101', 300, 30, ['whoami'])
-        ]
-      end
-      let(:instance) { ShellStrike.new(hosts, [username], [password]) }
-
-      before do
-        hosts.each do |host|
-          stub_valid_ssh_credentials(host.host, host.port, [username, password])
-        end
-
-        instance.identify_credentials!
-      end
-      subject { instance.execute_actions! }
-
-      it 'returns a hash with the results' do
-        expect(subject).to eq({
-          '192.168.1.100:22': [
-            {
-              command: 'whoami',
-              exit_code: 0,
-              stdout: username,
-              stderr: ''
-            }
-          ]
-        })
       end
     end
   end
