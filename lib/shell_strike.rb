@@ -50,6 +50,37 @@ class ShellStrike
     end
   end
 
+  # A hash of hosts and their valid credentials.
+  # @return A hash of Host URIs and their valid credentials.
+  # @example
+  #   { '192.168.1.100:22' => ['admin', 'password'] }
+  def identified_credentials
+    @identified_credentials ||= {}
+  end
+
+  # A hash of hosts which were unreachable.
+  # @return A hash of Host objects and their error messages.
+  # @example
+  #     #<ShellStrike::Host:*> => 'Unable to connect to *. No route to host'
+  def unreachable_hosts
+    @unreachable_hosts ||= {}
+  end
+
+  # An array of hosts for which valid credentials were not able to be identified.
+  # @return An array of Host objects
+  def failed_hosts
+    @failed_hosts ||= []
+  end
+
+  private
+
+  # Creates an array of username and password combinations, using the previously supplied usernames and passwords.
+  # @return An array of (yet to be validated!) username and password combinations
+  # @example
+  #   [ ['root', 'letmein'], ['admin', 'password'] ]
+  def username_password_combinations
+    @usernames.product(@passwords)
+  end
 
   # Stores valid credentials into the #identified_credentials array
   # @param host [Host] The host object for which to store the valid credentials
@@ -71,35 +102,5 @@ class ShellStrike
   # @param host [Host] the host for which no valid credentials could be identified.
   def store_failed_host(host)
     failed_hosts << host
-  end
-
-  # Creates an array of username and password combinations, using the previously supplied usernames and passwords.
-  # @return An array of (yet to be validated!) username and password combinations
-  # @example
-  #   [ ['root', 'letmein'], ['admin', 'password'] ]
-  def username_password_combinations
-    @usernames.product(@passwords)
-  end
-
-  # A hash of hosts and their valid credentials.
-  # @return A hash of Host URIs and their valid credentials.
-  # @example
-  #   { '192.168.1.100:22' => ['admin', 'password'] }
-  def identified_credentials
-    @identified_credentials ||= {}
-  end
-
-  # A hash of hosts which were unreachable.
-  # @return A hash of Host objects and their error messages.
-  # @example
-  #     #<ShellStrike::Host:*> => 'Unable to connect to *. No route to host'
-  def unreachable_hosts
-    @unreachable_hosts ||= {}
-  end
-
-  # An array of hosts for which valid credentials were not able to be identified.
-  # @return An array of Host objects
-  def failed_hosts
-    @failed_hosts ||= []
   end
 end
