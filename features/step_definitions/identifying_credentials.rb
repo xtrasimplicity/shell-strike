@@ -2,6 +2,14 @@ Given("There is an SSH server running on {string}:{int}") do |hostname, port|
  mock_host_as_online(hostname, port)
 end
 
+Given("The following SSH servers are running and are accepting connections:") do |table|
+  mock_all_hosts_as_offline
+
+  table.rows.each do |host, port|
+    step %(There is an SSH server running on "#{host}":#{port})
+  end
+end
+
 Given("There isn't an SSH server running on {string}:{int}") do |hostname, port|
   mock_host_as_offline(hostname, port)
 end
@@ -42,6 +50,12 @@ end
 
 Then("ShellStrike.identified_credentials should be an empty hash") do
   expect(@instance.identified_credentials).to eq({})
+end
+
+Then("ShellStrike.identified_credentials[{string}] should not exist") do |host_uri|
+  subject = @instance.identified_credentials
+
+  expect(subject).not_to have_key(host_uri)
 end
 
 Then("ShellStrike.unreachable_hosts should include {string}:{int} with a message containing {string}") do |host, port, message|
