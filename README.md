@@ -26,9 +26,9 @@ Or install it yourself as:
     $ gem install shell_strike
 
 ## Usage
-Create a new instance of ShellStrike, passing in an array of ShellStrike::Host objects, an array of usernames and an array of passwords. i.e.
+Create a new instance of ShellStrike, passing in an array of `ShellStrike::Host` objects, an array of usernames and an array of passwords. i.e.
 
-```
+```ruby
 hosts = [
   ShellStrike::Host.new('192.168.1.100'),
   ShellStrike::Host.new('192.168.1.101')
