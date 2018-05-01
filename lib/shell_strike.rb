@@ -1,6 +1,5 @@
-require "net/ssh"
-
 require "shell_strike/version"
+require "shell_strike/ssh"
 require "shell_strike/exceptions"
 require "shell_strike/result"
 require "shell_strike/host"
@@ -48,6 +47,16 @@ class ShellStrike
 
       store_failed_host(host) if credential_failure_count == username_password_combinations.length
     end
+  end
+
+  def execute_actions
+    @hosts.map do |host|
+      next unless identified_credentials.has_key?(host.to_uri)
+
+      username, password = identified_credentials[host.to_uri]
+
+      [host.to_uri.to_sym, host.execute_actions(username, password)]
+    end.reject { |result| result.nil? }.to_h
   end
 
   # A hash of hosts and their valid credentials.
