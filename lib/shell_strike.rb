@@ -49,15 +49,7 @@ class ShellStrike
     end
   end
 
-  def execute_actions
-    @hosts.map do |host|
-      next unless identified_credentials.has_key?(host.to_uri)
-
-      username, password = identified_credentials[host.to_uri]
-
-      [host.to_uri.to_sym, host.execute_actions(username, password)]
-    end.reject { |result| result.nil? }.to_h
-  end
+  
 
   # A hash of hosts and their valid credentials.
   # @return A hash of Host URIs and their valid credentials.
