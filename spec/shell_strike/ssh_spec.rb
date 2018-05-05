@@ -157,7 +157,7 @@ describe ShellStrike::Ssh do
           let(:expected_stderr_content) { ['Error: Unable to do complete the task.', 'Please check the arguments you supplied and try again.']}
           before do
             expect(ssh_channel).to receive(:exec).and_yield(ssh_channel, true)
-
+            expect(ssh_channel).to receive(:wait)
             allow(ssh_channel).to receive(:on_request).with(any_args)
             allow(ssh_channel).to receive(:on_data).with(no_args)
             allow(ssh_channel).to receive(:on_extended_data).with(no_args)
