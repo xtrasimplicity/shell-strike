@@ -8,6 +8,16 @@ module SshMockHelper
   def mock_invalid_credentials(host_obj, username, password)
     allow(ShellStrike::Ssh).to receive(:valid_credentials?).with(host_obj, username, password).and_return(false)
   end
+
+  def mock_ssh_session(host_obj, username, password, **double_options)
+    mock_valid_credentials(host_obj, username, password)
+
+    session = instance_double('Net::SSH::Connection::Session', double_options)
+
+    allow(Net::SSH).to receive(:start).with(host_obj.host, username, hash_including(port: host_obj.port, password: password)).and_yield(session)
+
+    session
+  end
 end
 
 describe ShellStrike::Ssh do
@@ -123,7 +133,71 @@ describe ShellStrike::Ssh do
       end
 
       context 'when the credentials are valid' do
-        it { skip }
+        let(:ssh_session) { mock_ssh_session(host, username, password) }
+        let(:ssh_channel) { instance_double('Net::SSH::Connection::Channel') }
+        let(:buffer) { instance_double('Net::SSH::Buffer') }
+
+        before do
+          allow(ssh_session).to receive(:open_channel).and_yield(ssh_channel)
+        end
+
+        context 'when the shell couldn\'t execute the command' do
+          before do
+            allow(ssh_channel).to receive(:exec).and_yield(ssh_channel, false)
+          end
+
+          it 'raises ShellStrike::Ssh::CommandExecutionFailureError' do
+            expect { ShellStrike::Ssh.execute_command(host, username, password, command) }.to raise_error ShellStrike::Ssh::CommandExecutionFailureError
+          end
+        end
+
+        context 'when the shell successfully executed the command' do
+          let(:expected_exit_code) { 0 }
+          let(:expected_stdout_content) { ['First line of the command\'s output.','Each additional line is a new item in the array.'] }
+          let(:expected_stderr_content) { ['Error: Unable to do complete the task.', 'Please check the arguments you supplied and try again.']}
+          before do
+            expect(ssh_channel).to receive(:exec).and_yield(ssh_channel, true)
+
+            allow(ssh_channel).to receive(:on_request).with(any_args)
+            allow(ssh_channel).to receive(:on_data).with(no_args)
+            allow(ssh_channel).to receive(:on_extended_data).with(no_args)
+          end
+
+          subject { ShellStrike::Ssh.execute_command(host, username, password, command) }
+
+          it 'returns a CommandResult object' do
+            expect(subject).to be_a_kind_of(ShellStrike::Ssh::CommandResult)
+          end
+
+          it 'stores the command' do
+            expect(subject.command).to eq(command)
+          end
+
+          it 'stores the exit_code' do
+            expect(ssh_channel).to receive(:on_request).with('exit-status').and_yield(ssh_channel, buffer)
+            expect(buffer).to receive(:read_long).and_return(expected_exit_code)
+
+            expect(subject.exit_code).to eq(expected_exit_code)
+          end
+
+          it 'stores the stdout content as an array' do
+            buffer_content = expected_stdout_content.join("\n")
+            
+            expect(ssh_channel).to receive(:on_data).and_yield(ssh_channel, buffer)
+            expect(buffer).to receive(:read).and_return(buffer_content)
+
+            expect(subject.stdout).to eq(expected_stdout_content)
+          end
+
+          it 'sets the stderr content as an array' do
+            buffer_content = expected_stderr_content.join("\n")
+
+            expect(ssh_channel).to receive(:on_extended_data).and_yield(ssh_channel, buffer)
+            expect(buffer).to receive(:read).and_return(buffer_content)
+
+            expect(subject.stderr).to eq(expected_stderr_content)
+          end
+        end
       end
     end
 
