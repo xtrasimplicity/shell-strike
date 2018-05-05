@@ -33,7 +33,39 @@ module ShellStrike::Ssh
       raise HostUnreachableError unless host_listening?(host)
       raise InvalidCredentialsError unless valid_credentials?(host, username, password)
 
-      CommandResult.new(command, 0, '', '')
+      exit_code = 1
+      stdout_text = ''
+      stderr_text = ''
+
+
+      Net::SSH::start(host.host, username, password: password, port: host.port, non_interactive: true, timeout: host.connection_timeout) do |ssh|
+
+        ssh.open_channel do |channel|
+          channel.exec(command) do |ch, success|
+            raise CommandExecutionFailureError unless success
+
+            # Process the stdout stream
+            ch.on_data do |_, stdout_buf|
+              stdout_text << stdout_buf.read
+            end
+
+            # Process the stderr stream
+            ch.on_extended_data do |_, stderr_buf|
+              stderr_text << stderr_buf.read
+            end
+
+            ch.on_request('exit-status') do |_, status|
+              exit_code = status.read_long
+            end
+          end
+        end
+      end
+
+      # Split the output streams at each linefeed
+      stdout_arr = stdout_text.split("\n")
+      stderr_arr = stderr_text.split("\n")
+
+      CommandResult.new(command: command, exit_code: exit_code, stdout: stdout_arr, stderr: stderr_arr)
     end
   end
 
