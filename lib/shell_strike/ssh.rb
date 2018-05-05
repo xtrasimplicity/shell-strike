@@ -58,6 +58,8 @@ module ShellStrike::Ssh
               exit_code = status.read_long
             end
           end
+
+          channel.wait # Make sure we don't close the channel until the command has completed
         end
       end
 

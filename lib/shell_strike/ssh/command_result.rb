@@ -4,5 +4,6 @@ class ShellStrike::Ssh::CommandResult
   def initialize(**args)
     args.each do |key, value|
       instance_variable_set("@#{key}".to_sym, value)
+    end
   end
 end
