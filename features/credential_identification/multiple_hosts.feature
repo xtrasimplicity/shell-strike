@@ -109,7 +109,7 @@ Feature: Identifying credentials for multiple hosts at once
     | username  | password  |
     | root      | password  |
     And ShellStrike.identified_credentials['192.168.1.100:22'] should not exist
-    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with a message containing 'No route to host'
+    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with an explanation of ':unreachable'
 
   Scenario: A single host is unreachable, the other is reachable and has invalid credentials
     Given There is an SSH server running on '192.168.1.101':22
@@ -131,7 +131,7 @@ Feature: Identifying credentials for multiple hosts at once
     """
     Then ShellStrike.identified_credentials['192.168.1.101:22'] should not exist
     And ShellStrike.identified_credentials['192.168.1.100:22'] should not exist
-    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with a message containing 'No route to host'
+    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with an explanation of ':unreachable'
 
   Scenario: Both hosts are unreachable
     Given There isn't an SSH server running on '192.168.1.101':22
@@ -150,8 +150,8 @@ Feature: Identifying credentials for multiple hosts at once
     """
     Then ShellStrike.identified_credentials['192.168.1.101:22'] should not exist
     And ShellStrike.identified_credentials['192.168.1.100:22'] should not exist
-    And ShellStrike.unreachable_hosts should include '192.168.1.101':22 with a message containing 'No route to host'
-    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with a message containing 'No route to host'
+    And ShellStrike.unreachable_hosts should include '192.168.1.101':22 with an explanation of ':unreachable'
+    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with an explanation of ':unreachable'
 
 
   Scenario: Connections to all hosts time out
@@ -172,9 +172,9 @@ Feature: Identifying credentials for multiple hosts at once
       @instance.identify_credentials!
     """
     Then ShellStrike.identified_credentials should be an empty hash
-    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with a message containing 'Connection timed out'
-    And ShellStrike.unreachable_hosts should include '192.168.1.101':22 with a message containing 'Connection timed out'
-    And ShellStrike.unreachable_hosts should include '192.168.1.102':22 with a message containing 'Connection timed out'
+    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with an explanation of ':timeout'
+    And ShellStrike.unreachable_hosts should include '192.168.1.101':22 with an explanation of ':timeout'
+    And ShellStrike.unreachable_hosts should include '192.168.1.102':22 with an explanation of ':timeout'
 
     Scenario: Connections to one host times out, the others have valid credentials
     Given The following SSH servers are running and are accepting connections:
@@ -207,7 +207,7 @@ Feature: Identifying credentials for multiple hosts at once
     And ShellStrike.identified_credentials['192.168.1.102:22'] should only include:
     | username  | password  |
     | bob       | drowpass  |
-    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with a message containing 'Connection timed out'
+    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with an explanation of ':timeout'
 
   Scenario: A connection to one host fails unexpectedly, the other hosts are OK but no credentials could be identified
     Given The following SSH servers are running and are accepting connections:
@@ -235,4 +235,4 @@ Feature: Identifying credentials for multiple hosts at once
       @instance.identify_credentials!
     """
     Then ShellStrike.identified_credentials should be an empty hash
-    And ShellStrike.unreachable_hosts should include '192.168.1.103':22 with a message containing 'unexpected error occurred'
+    And ShellStrike.unreachable_hosts should include '192.168.1.103':22 with an explanation of ':unexpected_error'

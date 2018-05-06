@@ -33,7 +33,7 @@ Feature: Identifying credentials for a single host
       @instance.identify_credentials!
     """
     Then ShellStrike.identified_credentials should be an empty hash
-    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with a message containing 'No route to host'
+    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with an explanation of ':unreachable'
 
   Scenario: A connection to the host times out
     Given Connections to an SSH server running on '192.168.1.100':22 timeout
@@ -49,7 +49,7 @@ Feature: Identifying credentials for a single host
       @instance.identify_credentials!
     """
     Then ShellStrike.identified_credentials should be an empty hash
-    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with a message containing 'Connection timed out'
+    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with an explanation of ':timeout'
 
   Scenario: A connection to the host fails unexpectedly
     Given Connections to an SSH server running on '192.168.1.100':22 fail with an unexpected error
@@ -65,7 +65,7 @@ Feature: Identifying credentials for a single host
       @instance.identify_credentials!
     """
     Then ShellStrike.identified_credentials should be an empty hash
-    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with a message containing 'unexpected error occurred'
+    And ShellStrike.unreachable_hosts should include '192.168.1.100':22 with an explanation of ':unexpected_error'
 
   Scenario: A host is online, but the valid credentials aren't present in the username and password dictionaries
     Given There is an SSH server running on '172.20.16.20':22

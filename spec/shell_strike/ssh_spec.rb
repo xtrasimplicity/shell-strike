@@ -23,7 +23,7 @@ end
 describe ShellStrike::Ssh do
   include SshMockHelper
 
-  describe '.host_listening?' do
+  describe '.check_host_reachable' do
     let(:host) { ShellStrike::Host.new('192.168.1.100', 22) }
 
     context 'when a host is listening' do
@@ -31,18 +31,18 @@ describe ShellStrike::Ssh do
         allow(Net::SSH).to receive(:start).with(host.host, anything, hash_including(port: host.port)).and_return(true)
       end
 
-      subject { ShellStrike::Ssh.host_listening?(host) }
+      subject { ShellStrike::Ssh.check_host_reachable(host) }
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to eq([true, nil]) }
 
       context 'when a Net::SSH::AuthenticationFailed error is raised' do
         before do
           allow(Net::SSH).to receive(:start).with(host.host, anything, hash_including(port: host.port)).and_raise(Net::SSH::AuthenticationFailed)
         end
 
-        subject { ShellStrike::Ssh.host_listening?(host) }
+        subject { ShellStrike::Ssh.check_host_reachable(host) }
 
-        it { is_expected.to eq(true) }
+        it { is_expected.to eq([true, nil]) }
       end
     end
 
@@ -51,9 +51,9 @@ describe ShellStrike::Ssh do
         allow(Net::SSH).to receive(:start).with(host.host, anything, hash_including(port: host.port)).and_raise(Errno::EHOSTUNREACH)
       end
 
-      subject { ShellStrike::Ssh.host_listening?(host) }
+      subject { ShellStrike::Ssh.check_host_reachable(host) }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to eq([false, :unreachable]) }
     end
 
     context 'when a connection times out' do
@@ -61,9 +61,9 @@ describe ShellStrike::Ssh do
         allow(Net::SSH).to receive(:start).with(host.host, anything, hash_including(port: host.port)).and_raise(Net::SSH::ConnectionTimeout)
       end
 
-      subject { ShellStrike::Ssh.host_listening?(host) }
+      subject { ShellStrike::Ssh.check_host_reachable(host) }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to eq([false, :timeout]) }
     end
 
     context 'when an unexpected Net::SSH::Exception error is raised' do
@@ -71,9 +71,9 @@ describe ShellStrike::Ssh do
         allow(Net::SSH).to receive(:start).with(host.host, anything, hash_including(port: host.port)).and_raise(Net::SSH::Exception)
       end
 
-      subject { ShellStrike::Ssh.host_listening?(host) }
+      subject { ShellStrike::Ssh.check_host_reachable(host) }
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to eq([false, :unexpected_error]) }
     end
   end
 
@@ -82,7 +82,7 @@ describe ShellStrike::Ssh do
 
     context 'when a host is not reachable' do
       before do
-        allow(ShellStrike::Ssh).to receive(:host_listening?).with(host).and_return(false)
+        allow(ShellStrike::Ssh).to receive(:check_host_reachable).with(host).and_return([false, :unreachable])
       end
 
       subject { ShellStrike::Ssh.valid_credentials?(host, 'admin', 'password') }
@@ -92,7 +92,7 @@ describe ShellStrike::Ssh do
 
     context 'when a host is reachable' do
       before do
-        allow(ShellStrike::Ssh).to receive(:host_listening?).with(host).and_return(true)
+        allow(ShellStrike::Ssh).to receive(:check_host_reachable).with(host).and_return([true, nil])
       end
 
       context 'when the credentials are valid' do
@@ -131,7 +131,7 @@ describe ShellStrike::Ssh do
     
     context 'when a host is not reachable' do
       before do
-        allow(ShellStrike::Ssh).to receive(:host_listening?).with(host).and_return(false)
+        allow(ShellStrike::Ssh).to receive(:check_host_reachable).with(host).and_return([false, :unreachable])
       end
 
       it 'raises ShellStrike::Ssh::HostUnreachableError' do
@@ -141,7 +141,7 @@ describe ShellStrike::Ssh do
 
     context 'when a host is reachable' do
       before do
-        allow(ShellStrike::Ssh).to receive(:host_listening?).with(host).and_return(true)
+        allow(ShellStrike::Ssh).to receive(:check_host_reachable).with(host).and_return([true, nil])
       end
 
       context 'when the credentials are invalid' do

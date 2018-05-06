@@ -3,23 +3,28 @@ require 'socket'
 
 module ShellStrike::Ssh
   class << self
-    def host_listening?(host)
-      result = :success
+    def check_host_reachable(host)
+      reachable = false
+      explanation = nil
 
       begin
         establish_connection(host, 'fake_username', 'fake_password')
-      rescue Net::SSH::ConnectionTimeout
-        result = :timeout
+        reachable = true
       rescue Net::SSH::AuthenticationFailed
-      rescue Errno::EHOSTUNREACH, Net::SSH::Exception
-        result = :unreachable
+        reachable = true
+      rescue Net::SSH::ConnectionTimeout
+        explanation = :timeout
+      rescue Errno::EHOSTUNREACH
+        explanation = :unreachable
+      rescue Net::SSH::Exception
+        explanation = :unexpected_error
       end
       
-      !([:unreachable, :timeout].include?(result))
+      [reachable, explanation]
     end
 
     def valid_credentials?(host, username, password)
-      return false unless host_listening?(host)
+      return false unless check_host_reachable(host)[0]
 
       begin
         establish_connection(host, username, password)
@@ -38,7 +43,7 @@ module ShellStrike::Ssh
     # @raise [InvalidCredentialsError] If the credentials supplied are invalid.
     # @return [CommandResult] The result of the command's execution.
     def execute_command(host, username, password, command)
-      raise HostUnreachableError unless host_listening?(host)
+      raise HostUnreachableError unless check_host_reachable(host)[0]
       raise InvalidCredentialsError unless valid_credentials?(host, username, password)
 
       exit_code = 1
