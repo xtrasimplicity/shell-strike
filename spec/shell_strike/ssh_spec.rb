@@ -34,6 +34,16 @@ describe ShellStrike::Ssh do
       subject { ShellStrike::Ssh.host_listening?(host) }
 
       it { is_expected.to eq(true) }
+
+      context 'when a Net::SSH::AuthenticationFailed error is raised' do
+        before do
+          allow(Net::SSH).to receive(:start).with(host.host, anything, hash_including(port: host.port)).and_raise(Net::SSH::AuthenticationFailed)
+        end
+
+        subject { ShellStrike::Ssh.host_listening?(host) }
+
+        it { is_expected.to eq(true) }
+      end
     end
 
     context 'when a host is not listening' do

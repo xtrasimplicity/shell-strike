@@ -12,6 +12,7 @@ module ShellStrike::Ssh
         result = :unreachable
       rescue Net::SSH::ConnectionTimeout
         result = :timeout
+      rescue Net::SSH::AuthenticationFailed
       end
       
       !([:unreachable, :timeout].include?(result))
