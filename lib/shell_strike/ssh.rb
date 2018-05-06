@@ -8,11 +8,11 @@ module ShellStrike::Ssh
 
       begin
         establish_connection(host, 'fake_username', 'fake_password')
-      rescue Errno::EHOSTUNREACH
-        result = :unreachable
       rescue Net::SSH::ConnectionTimeout
         result = :timeout
       rescue Net::SSH::AuthenticationFailed
+      rescue Errno::EHOSTUNREACH, Net::SSH::Exception
+        result = :unreachable
       end
       
       !([:unreachable, :timeout].include?(result))

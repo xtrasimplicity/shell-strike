@@ -65,6 +65,16 @@ describe ShellStrike::Ssh do
 
       it { is_expected.to eq(false) }
     end
+
+    context 'when an unexpected Net::SSH::Exception error is raised' do
+      before do
+        allow(Net::SSH).to receive(:start).with(host.host, anything, hash_including(port: host.port)).and_raise(Net::SSH::Exception)
+      end
+
+      subject { ShellStrike::Ssh.host_listening?(host) }
+
+      it { is_expected.to eq(false) }
+    end
   end
 
   describe '.valid_credentials?' do
