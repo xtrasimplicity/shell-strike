@@ -7,7 +7,7 @@ module ShellStrike::Ssh
       result = :success
 
       begin
-        attempt_connection(host, 'fake_username', 'fake_password')
+        establish_connection(host, 'fake_username', 'fake_password')
       rescue Errno::EHOSTUNREACH
         result = :unreachable
       rescue Net::SSH::ConnectionTimeout
@@ -21,14 +21,21 @@ module ShellStrike::Ssh
       return false unless host_listening?(host)
 
       begin
-        attempt_connection(host, username, password)
+        establish_connection(host, username, password)
         true
       rescue Net::SSH::Exception, Errno::EHOSTUNREACH
         false
       end
     end
 
-    # TODO: Add comment describing args, raises, etc
+    # Executes the specified command against the specified host.
+    # @param host [ShellStrike::Host] The host to execute the command against.
+    # @param username [String] The username to use to establish the connection.
+    # @param password [String] The password to use to establish the connection.
+    # @param command [String] The command to run against the remote host.
+    # @raise [HostUnreachableError] If a connection to the host could not be established.
+    # @raise [InvalidCredentialsError] If the credentials supplied are invalid.
+    # @return [CommandResult] The result of the command's execution.
     def execute_command(host, username, password, command)
       raise HostUnreachableError unless host_listening?(host)
       raise InvalidCredentialsError unless valid_credentials?(host, username, password)
@@ -38,8 +45,7 @@ module ShellStrike::Ssh
       stderr_text = ''
 
 
-      Net::SSH::start(host.host, username, password: password, port: host.port, non_interactive: true, timeout: host.connection_timeout) do |ssh|
-
+      establish_connection(host, username, password) do |ssh|
         ssh.open_channel do |channel|
           channel.exec(command) do |ch, success|
             raise CommandExecutionFailureError unless success
@@ -73,8 +79,13 @@ module ShellStrike::Ssh
 
   private
 
-  def self.attempt_connection(host, username, password)
-    Net::SSH.start(host.host, username, password: password, port: host.port, non_interactive: true, timeout: host.connection_timeout)
+  # Establishes a connection to the specified host.
+  # @param host [ShellStrike::Host] The host to connect to.
+  # @param username [String] The username to connect using.
+  # @param password [String] The password to connect using.
+  # @yieldparam [Net::SSH::Connection::Session] block The block to execute against the established SSH connection.
+  def self.establish_connection(host, username, password, &block)
+    Net::SSH::start(host.host, username, password: password, port: host.port, non_interactive: true, timeout: host.connection_timeout, &block)
   end
 end
 
