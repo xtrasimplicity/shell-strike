@@ -1,6 +1,5 @@
-require "net/ssh"
-
 require "shell_strike/version"
+require "shell_strike/ssh"
 require "shell_strike/exceptions"
 require "shell_strike/result"
 require "shell_strike/host"
@@ -27,28 +26,28 @@ class ShellStrike
   # Identifies valid credentials for each host and populates the `identified_credentials`, `failed_hosts` and `unreachable_hosts` arrays. 
   def identify_credentials!
     @hosts.each do |host|
+      is_reachable, explanation = Ssh.check_host_reachable(host)
+
+      unless is_reachable
+        store_unreachable_host(host, explanation)
+        next
+      end
+
       credential_failure_count = 0
 
       username_password_combinations.each do |username, password|
-        auth_result = host.test_credentials(username, password)
-
-        if auth_result.valid?
+        if Ssh.valid_credentials?(host, username, password)
           store_valid_credentials(host, username, password)
-          next
         else
-          case auth_result.error_type
-            when :authentication_failure
-              credential_failure_count += 1
-            when :host_unreachable, :connection_timeout, :unexpected_error
-              store_unreachable_host(host, auth_result.message)
-              break
-          end
+          credential_failure_count += 1
         end
       end
-
+      
       store_failed_host(host) if credential_failure_count == username_password_combinations.length
     end
   end
+
+  
 
   # A hash of hosts and their valid credentials.
   # @return A hash of Host URIs and their valid credentials.

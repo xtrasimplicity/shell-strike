@@ -13,36 +13,6 @@ class ShellStrike::Host
     @actions = actions
   end
 
-  # Tests the specified username and password.
-  # @param username [String] the username to test.
-  # @param password [String] the password to test.
-  # @return [Result] a result object indicating whether the credentials are valid
-  def test_credentials(username, password)
-    valid = false
-    message = ''
-    error_type = nil
-
-    begin
-      Net::SSH.start(@host, username, password: password, port: @port, non_interactive: true, timeout: @connection_timeout)
-
-      valid = true
-    rescue Net::SSH::AuthenticationFailed
-      message = 'Invalid Credentials'
-      error_type = :authentication_failure
-    rescue Net::SSH::ConnectionTimeout => e
-      message = "Connection timed out whilst attempting to connect to #{@host} on port #{@port}"
-      error_type = :connection_timeout
-    rescue Net::SSH::Exception => e
-      message = "An unexpected error occurred whilst connecting to #{@host} on port #{@port} with username #{username} and password #{password}: #{e.message}"
-      error_type = :unexpected_error
-    rescue Errno::EHOSTUNREACH => e
-      message = "Unable to connect to #{@host}: #{e.message}"
-      error_type = :host_unreachable
-    end
-
-    ShellStrike::Result.new(valid, message, error_type)
-  end
-
   # Returns the current host's address in URI form.
   # @return [String] the current host's address in URI form. (host:port)
   # @example 

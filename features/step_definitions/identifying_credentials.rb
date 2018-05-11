@@ -58,10 +58,10 @@ Then("ShellStrike.identified_credentials[{string}] should not exist") do |host_u
   expect(subject).not_to have_key(host_uri)
 end
 
-Then("ShellStrike.unreachable_hosts should include {string}:{int} with a message containing {string}") do |host, port, message|
+Then("ShellStrike.unreachable_hosts should include {string}:{int} with an explanation of {string}") do |host, port, explanation|
   unreachable_hosts = @instance.unreachable_hosts
 
-  expect(unreachable_hosts).to include("#{host}:#{port}" => Regexp.new(message))
+  expect(unreachable_hosts).to include("#{host}:#{port}" => explanation.gsub(':', '').to_sym)
 end
 
 Then("ShellStrike.unreachable_hosts should be an empty hash") do

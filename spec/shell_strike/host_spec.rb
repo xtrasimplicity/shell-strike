@@ -49,47 +49,6 @@ describe ShellStrike::Host do
     end
   end
 
-  describe '#test_credentials' do
-    let(:host) { ShellStrike::Host.new('192.168.1.1') }
-    let(:username) { 'admin' }
-    let(:password) { 'thisIsAFakePassword' }
-
-    context 'when the credentials are valid' do
-      before { allow(Net::SSH).to receive(:start).and_return(true) }
-      subject { host.test_credentials(username, password) }
-
-      it { is_expected.to return_a_result_object.with_a_success_value_of(true).and_an_error_type_of(nil).and_no_message }
-    end
-
-    context 'when the credentials are invalid' do
-      before { allow(Net::SSH).to receive(:start).and_raise(Net::SSH::AuthenticationFailed) }
-      subject { host.test_credentials(username, password) }
-
-      it { is_expected.to return_a_result_object.with_a_success_value_of(false).and_an_error_type_of(:authentication_failure).and_a_message_matching(/invalid credentials/i) }
-    end
-
-    context 'when the host is unreachable' do
-      before { allow(Net::SSH).to receive(:start).and_raise(Errno::EHOSTUNREACH) }
-      subject { host.test_credentials(username, password) }
-
-      it { is_expected.to return_a_result_object.with_a_success_value_of(false).and_an_error_type_of(:host_unreachable).and_a_message_matching(/no route to host/i) }
-    end
-
-    context 'when the connection times out' do
-      before { allow(Net::SSH).to receive(:start).and_raise(Net::SSH::ConnectionTimeout) }
-      subject { host.test_credentials(username, password) }
-
-      it { is_expected.to return_a_result_object.with_a_success_value_of(false).and_an_error_type_of(:connection_timeout).and_a_message_matching(/timed out/i) }
-    end
-
-    context 'when an unexpected SSH error occurs' do
-      before { allow(Net::SSH).to receive(:start).and_raise(Net::SSH::Exception) }
-      subject { host.test_credentials(username, password) }
-
-      it { is_expected.to return_a_result_object.with_a_success_value_of(false).and_an_error_type_of(:unexpected_error).and_a_message_matching(/unexpected error occurred/i) }
-    end
-  end
-
   describe '#to_uri' do
     let(:host) { ShellStrike::Host.new('172.20.16.20', 200) }
 
