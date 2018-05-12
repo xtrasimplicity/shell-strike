@@ -1,16 +1,16 @@
 require 'spec_helper'
 
 module SshMockHelper
-  def mock_valid_credentials(host_obj, username, password)
+  def stub_valid_credentials(host_obj, username, password)
    allow(ShellStrike::Ssh).to receive(:valid_credentials?).with(host_obj, username, password).and_return(true)
   end
 
-  def mock_invalid_credentials(host_obj, username, password)
+  def stub_invalid_credentials(host_obj, username, password)
     allow(ShellStrike::Ssh).to receive(:valid_credentials?).with(host_obj, username, password).and_return(false)
   end
 
-  def mock_ssh_session(host_obj, username, password, **double_options)
-    mock_valid_credentials(host_obj, username, password)
+  def stub_ssh_session(host_obj, username, password, **double_options)
+    stub_valid_credentials(host_obj, username, password)
 
     session = instance_double('Net::SSH::Connection::Session', double_options)
 
@@ -145,7 +145,7 @@ describe ShellStrike::Ssh do
       end
 
       context 'when the credentials are invalid' do
-        before { mock_invalid_credentials(host, username, password) }
+        before { stub_invalid_credentials(host, username, password) }
 
         it 'raises ShellStrike::Ssh::InvalidCredentialsError' do
           expect { ShellStrike::Ssh.execute_command(host, username, password, command) }.to raise_error ShellStrike::Ssh::InvalidCredentialsError
@@ -153,7 +153,7 @@ describe ShellStrike::Ssh do
       end
 
       context 'when the credentials are valid' do
-        let(:ssh_session) { mock_ssh_session(host, username, password) }
+        let(:ssh_session) { stub_ssh_session(host, username, password) }
         let(:ssh_channel) { instance_double('Net::SSH::Connection::Channel') }
         let(:buffer) { instance_double('Net::SSH::Buffer') }
 

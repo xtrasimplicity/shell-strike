@@ -1,9 +1,9 @@
 Given("There is an SSH server running on {string}:{int}") do |hostname, port|
- mock_host_as_online(hostname, port)
+ stub_host_as_online(hostname, port)
 end
 
 Given("The following SSH servers are running and are accepting connections:") do |table|
-  mock_all_hosts_as_offline
+  stub_all_hosts_as_offline
 
   table.rows.each do |host, port|
     step %(There is an SSH server running on "#{host}":#{port})
@@ -11,16 +11,16 @@ Given("The following SSH servers are running and are accepting connections:") do
 end
 
 Given("There isn't an SSH server running on {string}:{int}") do |hostname, port|
-  mock_host_as_offline(hostname, port)
+  stub_host_as_offline(hostname, port)
 end
 
 
 Given("Connections to an SSH server running on {string}:{int} timeout") do |hostname, port|
-  mock_connection_timeout(hostname, port)
+  stub_connection_timeout(hostname, port)
 end
 
 Given("Connections to an SSH server running on {string}:{int} fail with an unexpected error") do |hostname, port|
-  mock_unexpected_connection_failure(hostname, port)
+  stub_unexpected_connection_failure(hostname, port)
 end
 
 Given("the server at {string}:{int} has the following valid credentials:") do |host, port, table|
