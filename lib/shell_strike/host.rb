@@ -22,4 +22,14 @@ class ShellStrike::Host
   def to_uri
     "#{self.host}:#{self.port}"
   end
+
+  # Executes the actions defined in @actions and `supplementary_actions` against the host.
+  # @param username [String] The username to use to authenticate with the host.
+  # @param password [String] The password to use to authenticate with the host.
+  # @param supplementary_actions [Array<string>] Additional commands to run against the host.
+  # @return [Array<ShellStrike::Ssh::CommandResult] The results for each command.
+  def execute_actions(username, password, supplementary_actions = [])
+    return [] if @actions.concat(supplementary_actions).empty?
+  end
+
 end

@@ -56,4 +56,26 @@ describe ShellStrike::Host do
 
     it { is_expected.to eq '172.20.16.20:200' }
   end
+
+  describe '#execute_actions' do
+    context 'when the host was instantiated without any actions' do
+      let(:host) { ShellStrike::Host.new('127.0.0.1', 22, 30, []) }
+
+      context 'and no supplementary actions have been provided' do
+        subject { host.execute_actions('fake_username', 'fake_password', []) }
+
+        it 'returns an empty array' do
+          expect(subject).to eq([])
+        end
+      end
+
+      context 'and supplementary actions have been provided' do
+        subject { host.execute_actions('fake_username', 'fake_password', ['whoami']) }
+
+        it 'does not return an empty array' do
+          expect(subject).not_to eq([])
+        end
+      end
+    end
+  end
 end
