@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe ShellStrike::Host do
+  include SSHHelper
+
   describe '#initialize' do
     let(:host_address) { '192.168.1.1' }
     let(:port) { '2222' }
@@ -96,10 +98,29 @@ describe ShellStrike::Host do
       end
 
       context 'and supplementary actions have been provided' do
-        subject { host.execute_actions('fake_username', 'fake_password', ['whoami']) }
+        let(:username) { 'admin' }
+        let(:password) { 'pa55w0rd' }
+        let(:command) { 'whoami' }
+        
+        context 'and the credentials are invalid' do
+          before do
+            stub_host_as_online(host.host, host.port)
+            stub_invalid_ssh_credentials(host.host, host.port, username, password)
+          end
 
-        it 'does not return an empty array' do
-          expect(subject).not_to eq([])
+          subject { host.execute_actions(username, password, [command]) }
+
+          it 'returns an array with the correct CommandResult object' do
+            expect(subject).to be_a(Array)
+            expect(subject).not_to be_empty
+
+            actual_object = subject.first
+
+            expect(actual_object.command).to eq(command)
+            expect(actual_object.stdout).to eq('')
+            expect(actual_object.stderr).to match(/credentials are invalid/i)
+          end
+        end
         end
       end
     end

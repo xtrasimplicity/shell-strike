@@ -37,7 +37,27 @@ class ShellStrike::Host
   # @param supplementary_actions [Array<string>] Additional commands to run against the host.
   # @return [Array<ShellStrike::Ssh::CommandResult] The results for each command.
   def execute_actions(username, password, supplementary_actions = [])
-    return [] if @actions.concat(supplementary_actions).empty?
+    all_actions = @actions.concat(supplementary_actions)
+
+    return [] if all_actions.empty?
+
+    action_results = []
+
+    all_actions.each do |action|
+      action_results << build_authentication_failure_result(action) and next unless valid_credentials?(username, password)
+    end
+
+    action_results
+  end
+
+  private
+
+  def build_authentication_failure_result(action)
+    ShellStrike::Ssh::CommandResult.new(
+      command: action,
+      stdout: '',
+      stderr: 'Unable to authenticate with the host. The supplied credentials are invalid.'
+    )
   end
 
 end
