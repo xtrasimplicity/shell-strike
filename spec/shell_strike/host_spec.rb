@@ -115,12 +115,11 @@ describe ShellStrike::Host do
             expect(subject).not_to be_empty
 
             actual_object = subject.first
-
+            
             expect(actual_object.command).to eq(command)
             expect(actual_object.stdout).to eq('')
             expect(actual_object.stderr).to match(/credentials are invalid/i)
           end
-        end
         end
       end
     end
