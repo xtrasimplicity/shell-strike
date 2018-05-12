@@ -23,6 +23,14 @@ class ShellStrike::Host
     "#{self.host}:#{self.port}"
   end
 
+  # Returns whether the specified credentials are valid
+  # @param username [String] The username to test.
+  # @param password [String] The password to test.
+  # @return [Boolean] Whether the credentials are valid.
+  def valid_credentials?(username, password)
+    ShellStrike::Ssh.valid_credentials?(self, username, password)
+  end
+
   # Executes the actions defined in @actions and `supplementary_actions` against the host.
   # @param username [String] The username to use to authenticate with the host.
   # @param password [String] The password to use to authenticate with the host.

@@ -57,6 +57,32 @@ describe ShellStrike::Host do
     it { is_expected.to eq '172.20.16.20:200' }
   end
 
+  describe '#valid_credentials?' do
+    let(:host) { ShellStrike::Host.new('172.20.16.20', 200) }
+    let(:username) { 'root' }
+    let(:password) { 'password' }
+
+    context 'when the credentials are valid' do
+      before do
+        stub_host_as_online(host.host, host.port)
+        stub_valid_ssh_credentials(host.host, host.port, [ [username, password] ])
+      end
+      subject { host.valid_credentials?(username, password) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when the credentials are invalid' do
+      before do
+        stub_host_as_online(host.host, host.port)
+        stub_invalid_ssh_credentials(host.host, host.port, username, password)
+      end
+      subject { host.valid_credentials?(username, password) }
+
+      it { is_expected.to be(false) }
+    end
+  end
+
   describe '#execute_actions' do
     context 'when the host was instantiated without any actions' do
       let(:host) { ShellStrike::Host.new('127.0.0.1', 22, 30, []) }
