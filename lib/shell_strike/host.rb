@@ -45,6 +45,8 @@ class ShellStrike::Host
 
     all_actions.each do |action|
       action_results << build_authentication_failure_result(action) and next unless valid_credentials?(username, password)
+
+      action_results << ShellStrike::Ssh::execute_command(self, username, password, action)
     end
 
     action_results
@@ -59,5 +61,5 @@ class ShellStrike::Host
       stderr: 'Unable to authenticate with the host. The supplied credentials are invalid.'
     )
   end
-
+  
 end

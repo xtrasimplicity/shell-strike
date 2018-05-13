@@ -31,4 +31,8 @@ module SSHHelper
   def stub_invalid_ssh_credentials(host, port, username, password)
     allow(ShellStrike::Ssh).to receive(:valid_credentials?).with(an_object_having_attributes(host: host, port: port), username, password).and_return(false)
   end
+
+  def stub_ssh_command_result(host, username, password, command, expected_command_result)
+    allow(ShellStrike::Ssh).to receive(:execute_command).with(host, username, password, command).and_return(expected_command_result)
+  end
 end

@@ -101,6 +101,8 @@ describe ShellStrike::Host do
         let(:username) { 'admin' }
         let(:password) { 'pa55w0rd' }
         let(:command) { 'whoami' }
+        let(:expected_stdout) { username }
+        let(:expected_exit_code) { 0 }
         
         context 'and the credentials are invalid' do
           before do
@@ -119,6 +121,36 @@ describe ShellStrike::Host do
             expect(actual_object.command).to eq(command)
             expect(actual_object.stdout).to eq('')
             expect(actual_object.stderr).to match(/credentials are invalid/i)
+          end
+        end
+
+        context 'and the credentials are valid' do
+          let(:expected_command_result) do
+            ShellStrike::Ssh::CommandResult.new(
+              command: command,
+              exit_code: expected_exit_code,
+              stderr: '',
+              stdout: expected_stdout
+            )
+          end
+
+          before do
+            stub_host_as_online(host.host, host.port)
+            stub_valid_ssh_credentials(host.host, host.port, [ [username, password] ])
+            stub_ssh_command_result(host, username, password, command, expected_command_result)
+          end
+
+          subject { host.execute_actions(username, password, [command]) }
+
+          it 'returns an array with the correct CommandResult object' do
+            expect(subject).to be_a(Array)
+            expect(subject).not_to be_empty
+
+            actual_object = subject.first
+
+            expect(actual_object.command).to eq(command)
+            expect(actual_object.stdout).to eq(expected_stdout)
+            expect(actual_object.stderr).to eq('')
           end
         end
       end
