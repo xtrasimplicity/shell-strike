@@ -41,6 +41,7 @@ class ShellStrike
           store_valid_credentials(host, username, password)
         else
           credential_failure_count += 1
+          ShellStrike::Events.emit(:credentials_failed, host, username, password)
         end
       end
       
@@ -96,6 +97,8 @@ class ShellStrike
   def store_valid_credentials(host, username, password)
     identified_credentials[host.to_uri] = [] unless identified_credentials.has_key? host.to_uri
     identified_credentials[host.to_uri] << [username, password]
+
+    ShellStrike::Events.emit(:credentials_identified, host, username, password)
   end
 
   # Stores the unreachable host into the unreachable hosts array

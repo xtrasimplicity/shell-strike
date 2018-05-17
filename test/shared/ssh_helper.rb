@@ -20,11 +20,15 @@ module SSHHelper
   end
 
   def stub_valid_ssh_credentials(host, port, valid_credentials)
-    allow(ShellStrike::Ssh).to receive(:valid_credentials?).with(an_object_having_attributes(host: host, port: port), anything, anything).and_return(false)
+    mock_authentication_failure(host, port)
 
     
     valid_credentials.each do |username, password|
      allow(ShellStrike::Ssh).to receive(:valid_credentials?).with(an_object_having_attributes(host: host, port: port), username, password).and_return(true)
     end
+  end
+
+  def mock_authentication_failure(host, port)
+    allow(ShellStrike::Ssh).to receive(:valid_credentials?).with(an_object_having_attributes(host: host, port: port), anything, anything).and_return(false)
   end
 end
