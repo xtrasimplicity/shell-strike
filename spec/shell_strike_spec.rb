@@ -83,4 +83,59 @@ RSpec.describe ShellStrike do
     end
   end
 
+  describe '#identify_credentials!' do
+    let(:username) { 'root' }
+    let(:password) { 'password' }
+    let(:host) { ShellStrike::Host.new('192.168.1.1') }
+    let(:instance) { ShellStrike.new([host], [username], [password]) }
+
+    context 'when the host is online' do
+      before { stub_host_as_online(host.host, host.port) }
+
+      context 'and the credentials are valid' do
+        before { stub_valid_ssh_credentials(host.host, host.port, [ [username, password] ]) }
+
+        it 'triggers the :credentials_identified event' do
+          expect(ShellStrike::Events).to receive(:emit).with(:credentials_identified, host, username, password)
+    
+          instance.identify_credentials!
+        end
+      end
+
+      context 'and the credentials are invalid' do
+        before { mock_authentication_failure(host.host, host.port) }
+
+        it 'triggers the :credentials_failed event' do
+          expect(ShellStrike::Events).to receive(:emit).with(:credentials_failed, host, username, password)
+    
+          instance.identify_credentials!
+        end
+      end
+    end
+  end
+
+  describe '#on' do
+    let(:instance) { ShellStrike.new([ShellStrike::Host.new('192.168.1.1')], ['root'], ['password']) }
+
+    context 'with an invalid event' do
+      it 'raises a ShellStrike::InvalidEvent error' do
+        expect {
+          instance.on(nil)
+        }.to raise_error(ShellStrike::InvalidEvent)
+      end
+    end
+
+    context 'with a valid event' do
+      it 'subscribes to the event' do
+        @x = 0
+        instance.on(:my_new_event) do
+          @x = 1
+        end
+
+        ShellStrike::Events.send(:emit, :my_new_event)
+
+        expect(@x).to eq(1)
+      end
+    end
+  end
 end

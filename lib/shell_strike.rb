@@ -1,4 +1,5 @@
 require "shell_strike/version"
+require "shell_strike/events"
 require "shell_strike/ssh"
 require "shell_strike/exceptions"
 require "shell_strike/result"
@@ -40,6 +41,7 @@ class ShellStrike
           store_valid_credentials(host, username, password)
         else
           credential_failure_count += 1
+          ShellStrike::Events.emit(:credentials_failed, host, username, password)
         end
       end
       
@@ -71,6 +73,13 @@ class ShellStrike
     @failed_hosts ||= []
   end
 
+  # Subscribe to an event
+  # @param event_name [Symbol] The event to subscribe to.
+  # @yieldparam block The block to execute
+  def on(event_name, &block)
+    ShellStrike::Events.on(event_name, &block)
+  end
+
   private
 
   # Creates an array of username and password combinations, using the previously supplied usernames and passwords.
@@ -88,6 +97,8 @@ class ShellStrike
   def store_valid_credentials(host, username, password)
     identified_credentials[host.to_uri] = [] unless identified_credentials.has_key? host.to_uri
     identified_credentials[host.to_uri] << [username, password]
+
+    ShellStrike::Events.emit(:credentials_identified, host, username, password)
   end
 
   # Stores the unreachable host into the unreachable hosts array
