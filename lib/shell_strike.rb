@@ -1,4 +1,5 @@
 require "shell_strike/version"
+require "shell_strike/events"
 require "shell_strike/ssh"
 require "shell_strike/exceptions"
 require "shell_strike/result"
@@ -69,6 +70,13 @@ class ShellStrike
   # @return An array of Host objects
   def failed_hosts
     @failed_hosts ||= []
+  end
+
+  # Subscribe to an event
+  # @param event_name [Symbol] The event to subscribe to.
+  # @yieldparam block The block to execute
+  def on(event_name, &block)
+    ShellStrike::Events.on(event_name, &block)
   end
 
   private

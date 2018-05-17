@@ -83,4 +83,28 @@ RSpec.describe ShellStrike do
     end
   end
 
+  describe '#on' do
+    let(:instance) { ShellStrike.new([ShellStrike::Host.new('192.168.1.1')], ['root'], ['password']) }
+
+    context 'with an invalid event' do
+      it 'raises a ShellStrike::InvalidEvent error' do
+        expect {
+          instance.on(nil)
+        }.to raise_error(ShellStrike::InvalidEvent)
+      end
+    end
+
+    context 'with a valid event' do
+      it 'subscribes to the event' do
+        @x = 0
+        instance.on(:my_new_event) do
+          @x = 1
+        end
+
+        ShellStrike::Events.send(:emit, :my_new_event)
+
+        expect(@x).to eq(1)
+      end
+    end
+  end
 end
