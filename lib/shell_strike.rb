@@ -1,5 +1,5 @@
 require "shell_strike/version"
-require "shell_strike/events"
+require "shell_strike/event_bus"
 require "shell_strike/ssh"
 require "shell_strike/exceptions"
 require "shell_strike/result"
@@ -41,7 +41,7 @@ class ShellStrike
           store_valid_credentials(host, username, password)
         else
           credential_failure_count += 1
-          ShellStrike::Events.emit(:credentials_failed, host, username, password)
+          event_bus.emit(:credentials_failed, host, username, password)
         end
       end
       
@@ -77,7 +77,7 @@ class ShellStrike
   # @param event_name [Symbol] The event to subscribe to.
   # @yieldparam block The block to execute
   def on(event_name, &block)
-    ShellStrike::Events.on(event_name, &block)
+    event_bus.on(event_name, &block)
   end
 
   private
@@ -98,7 +98,7 @@ class ShellStrike
     identified_credentials[host.to_uri] = [] unless identified_credentials.has_key? host.to_uri
     identified_credentials[host.to_uri] << [username, password]
 
-    ShellStrike::Events.emit(:credentials_identified, host, username, password)
+    event_bus.emit(:credentials_identified, host, username, password)
   end
 
   # Stores the unreachable host into the unreachable hosts array
@@ -112,5 +112,9 @@ class ShellStrike
   # @param host [Host] the host for which no valid credentials could be identified.
   def store_failed_host(host)
     failed_hosts << host
+  end
+
+  def event_bus
+    @event_bus ||= EventBus.new
   end
 end

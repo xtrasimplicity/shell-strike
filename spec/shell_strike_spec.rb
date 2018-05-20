@@ -88,6 +88,7 @@ RSpec.describe ShellStrike do
     let(:password) { 'password' }
     let(:host) { ShellStrike::Host.new('192.168.1.1') }
     let(:instance) { ShellStrike.new([host], [username], [password]) }
+    let(:event_bus) { instance.send(:event_bus) }
 
     context 'when the host is online' do
       before { stub_host_as_online(host.host, host.port) }
@@ -96,7 +97,7 @@ RSpec.describe ShellStrike do
         before { stub_valid_ssh_credentials(host.host, host.port, [ [username, password] ]) }
 
         it 'triggers the :credentials_identified event' do
-          expect(ShellStrike::Events).to receive(:emit).with(:credentials_identified, host, username, password)
+          expect(event_bus).to receive(:emit).with(:credentials_identified, host, username, password)
     
           instance.identify_credentials!
         end
@@ -106,7 +107,7 @@ RSpec.describe ShellStrike do
         before { mock_authentication_failure(host.host, host.port) }
 
         it 'triggers the :credentials_failed event' do
-          expect(ShellStrike::Events).to receive(:emit).with(:credentials_failed, host, username, password)
+          expect(event_bus).to receive(:emit).with(:credentials_failed, host, username, password)
     
           instance.identify_credentials!
         end
@@ -116,6 +117,7 @@ RSpec.describe ShellStrike do
 
   describe '#on' do
     let(:instance) { ShellStrike.new([ShellStrike::Host.new('192.168.1.1')], ['root'], ['password']) }
+    let(:event_bus) { instance.send(:event_bus) }
 
     context 'with an invalid event' do
       it 'raises a ShellStrike::InvalidEvent error' do
@@ -131,10 +133,30 @@ RSpec.describe ShellStrike do
         instance.on(:my_new_event) do
           @x = 1
         end
-
-        ShellStrike::Events.send(:emit, :my_new_event)
+  
+        event_bus.send(:emit, :my_new_event)
 
         expect(@x).to eq(1)
+      end
+    end
+  end
+
+  describe 'event handling' do
+    context 'when multiple ShellStrike instances exist' do
+      let(:hosts) { [ShellStrike::Host.new('192.168.1.1')] }
+      let(:usernames) { ['root'] }
+      let(:passwords) { ['password'] }
+
+      let(:a) { ShellStrike.new(hosts, usernames, passwords) }
+      let(:b) { ShellStrike.new(hosts, usernames, passwords) }
+      let(:event_bus_a) { a.send(:event_bus) }
+      let(:event_bus_b) { b.send(:event_bus) }
+
+      it "doesn't emit events to other instances" do
+        a.on(:my_event) { puts "I've been called!" }
+        expect(event_bus_b).not_to receive(:emit)
+
+        event_bus_a.emit(:my_event)
       end
     end
   end
