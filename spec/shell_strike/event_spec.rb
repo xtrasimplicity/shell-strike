@@ -30,5 +30,11 @@ describe ShellStrike::Events do
         }.to raise_error(ShellStrike::InvalidEvent)
       end
     end
+
+    it 'it does not raise an error if noone is listening' do
+      expect { 
+        ShellStrike::Events.emit(:my_event)
+      }.not_to raise_error
+    end
   end
 end
