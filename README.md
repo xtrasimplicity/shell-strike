@@ -1,10 +1,10 @@
-# ShellStrike (WIP)
+# ShellStrike
 [![Build Status](https://travis-ci.org/xtrasimplicity/shell-strike.svg?branch=master)](https://travis-ci.org/xtrasimplicity/shell-strike)
 [![Coverage Status](https://coveralls.io/repos/github/xtrasimplicity/shell-strike/badge.svg?branch=master)](https://coveralls.io/github/xtrasimplicity/shell-strike?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/f66cd28d67eb40caf879/maintainability)](https://codeclimate.com/github/xtrasimplicity/shell-strike/maintainability)
 [![Read the Docs](https://img.shields.io/readthedocs/pip.svg)](http://www.rubydoc.info/github/xtrasimplicity/shell-strike/master)
 
-A simple ruby gem to automatically identify valid SSH credentials for a server using custom username and password dictionaries, and (optionally) perform actions against hosts using the identified credentials.
+A simple ruby gem to automatically identify valid SSH credentials for a server using custom username and password dictionaries.
 
 
 This gem is intended to be used for educational purposes, and was written to assist with quickly identifying credential combinations for poorly documented internal servers. This gem is intended to be used against servers that you are authorised to 'attack' and the developer takes no responsibility for any issues which may arise due to misuse of this gem.
@@ -45,11 +45,12 @@ shell_strike.identify_credentials!
 Access identified credentials using `shell_strike.identified_credentials`.
 
 ## Events
-ShellStrike includes numerous events which users can consume on each instance of ShellStrike, like this.
+ShellStrike includes numerous events which users can consume on each instance of ShellStrike, like this:
 
 ```ruby
  shell_strike = ShellStrike.new(...)
  shell_strike.identify_credentials!
+ 
  shell_strike.on(:credentials_identified) do |host, username, password|
   puts "Success! #{username} / #{password} can be used to login to #{host}."
  end
@@ -61,7 +62,7 @@ The following events are available:
 
 ## TODO
 - Add support for user-defineable SSH arguments such as KexAlgorithms and key-based auth.
-- Add support for interactive SSH sessions.
+
 
 ## Development
 

@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Andrew Walter"]
   spec.email         = ["andrew@xtrasimplicity.com"]
 
-  spec.summary       = "A simple ruby gem to automatically identify valid SSH credentials for a server using custom username and password dictionaries, and (optionally) perform actions against hosts using the identified credentials."
+  spec.summary       = "A simple ruby gem to automatically identify valid SSH credentials for a server using custom username and password dictionaries."
   spec.homepage      = "https://github.com/xtrasimplicity/shell-strike"
   spec.license       = "MIT"
 
