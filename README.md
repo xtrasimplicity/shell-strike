@@ -42,6 +42,23 @@ shell_strike = ShellStrike.new(hosts, usernames, passwords)
 shell_strike.identify_credentials!
 ```
 
+Access identified credentials using `shell_strike.identified_credentials`.
+
+## Events
+ShellStrike includes numerous events which users can consume on each instance of ShellStrike, like this.
+
+```ruby
+ shell_strike = ShellStrike.new(...)
+ shell_strike.identify_credentials!
+ shell_strike.on(:credentials_identified) do |host, username, password|
+  puts "Success! #{username} / #{password} can be used to login to #{host}."
+ end
+```
+
+The following events are available:
+  * `:credentials_identified` => Triggered when valid credentials have been identified. Yields blocks supplied by listeners with three arguments: (1) The host object, (2) the valid username, and (3) the valid password.
+  * `:credentials_failed` => Triggered when credential validation fails. Yields blocks supplied by listeners with three arguments: (1) The host object, (2) the invalid username, and (3) the invalid password.
+
 ## TODO
 - Add support for user-defineable SSH arguments such as KexAlgorithms and key-based auth.
 - Add support for interactive SSH sessions.
