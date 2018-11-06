@@ -49,11 +49,11 @@ ShellStrike includes numerous events which users can consume on each instance of
 
 ```ruby
  shell_strike = ShellStrike.new(...)
- shell_strike.identify_credentials!
- 
  shell_strike.on(:credentials_identified) do |host, username, password|
   puts "Success! #{username} / #{password} can be used to login to #{host}."
  end
+ 
+ shell_strike.identify_credentials!
 ```
 
 The following events are available:
